@@ -1,0 +1,20 @@
+== DESCRIPTION: 
+
+This script for Vimperator provides CLI interface to some 
+WebDeveloper's functions. 
+
+== INSTALL: 
+
+To install, make symlink in ~/.vimperator/plugin to webdev.js:
+
+  make install 
+
+or copy it fully:
+
+  make install-hard
+  
+With symlink you can easy update the script just typing "git pull" 
+here, but with hard copy you don't need this distribution and can 
+delete it.
+
+Restart firefox.
