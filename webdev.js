@@ -1,10 +1,11 @@
 /**
  * ==VimperatorPlugin==
- * @name		   webdev.js
- * @description	Controlling WebDeveloper from Vimperator's CLI
- * @description-ru Управление WebDeveloper-ом из командной строки Vimperator-а
- * @author		 Artem S. <spriritedflow@gmail.com>
- * @version		0.1
+ * @name			webdev.js
+ * @description		Controlling WebDeveloper from Vimperator's CLI
+ * @description-ru	Управление WebDeveloper-ом из командной строки Vimperator-а
+ * @author			Artem S. <spriritedflow@gmail.com>
+ * @link			http://github.com/spiritedflow/vimperator-webdev/wikis
+ * @version			0.1
  * ==/VimperatorPlugin==
  *
  * This program is free software: you can redistribute it and/or modify
@@ -22,8 +23,10 @@
  * debug the plugin.
  *
  * Tested on:
- *  WebDeveloper version: 1.1.5
- *  Vimperator version: 1.2
+ *	WebDeveloper version: 1.1.5
+ *		url: https://addons.mozilla.org/en-US/firefox/addon/60
+ *	Vimperator version: 1.2
+ *		url: https://addons.mozilla.org/en-US/firefox/addon/4891
  */
 
 

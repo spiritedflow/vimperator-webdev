@@ -1,6 +1,3 @@
-* Insert link to WebDev homepage in info
-* Insert link to this script homepage
-
 * Implement .debug->cmd_tree which shows all commands in tabbed tree
 
 * dynamic branches in command tree
