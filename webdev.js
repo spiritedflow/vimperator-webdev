@@ -418,7 +418,7 @@ function processCommand (args) {
 		if ("_default_" in obj)
 		obj = obj._default_
 		else {
-			liberator.echo ("incomplete command, use \"?\" to view variants");
+			liberator.echo ("incomplete command, use <Tab> for variants");
 			return
 		}
 	}
