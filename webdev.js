@@ -91,6 +91,33 @@ function displayLoadedStyles () {
 	liberator.log(webdeveloper_appliedStyles);
 }
 
+// displayCommandTree: shows all command list 
+// as tabbed tree. This is quick way to get 
+// all commands at once
+function displayCommandTree () {
+
+	//buildTree: 
+	// recursive walk through expanded command tree
+	// see 'expandCommandTree' for details
+	// returns formated list of strings to output.
+	function formatTree (list, prefix) {
+		var res=[];
+		
+		for each(var node in list) {
+			res.push (prefix + node[0]);
+			if (node[1])
+				res = res.concat(formatTree (node[1], prefix + "\t"));
+		}		
+
+		return res;
+	}
+
+	var list = formatTree (expandCommandTree (), "\t");
+	var result = "webdev\n" + list.join("\n");
+	
+	liberator.echo (result);
+	//liberator.log ("Command tree:\n" + result);
+}
 
 /* ********************
  *   COMMAND   TREE
@@ -194,6 +221,7 @@ var commandTree = {
 	// Hidden menu .debug
 	'.debug': {
 		'loaded_styles': [displayLoadedStyles, "Display loaded styles"],
+		'cmd_tree': [displayCommandTree, "Display command tree"],
 	},
 	
 };
@@ -218,6 +246,26 @@ function keys(obj) {
 	for (var key in obj) 
 		res.push(key);
 	return res;
+}
+
+// expandCommandTree:
+// converts command tree into smth like:
+//   TREE ::= ["node_name", [SUBTREE]]
+//   SUBTREE ::= TREE
+// Only node names will be in result tree
+function expandCommandTree () {
+	
+ 	// For a while the algoritm is not 
+	// so hard to understand ;)
+	
+	return [ 
+			 [ "disable",
+			   [ ["javascript", []],
+			     ["java", []] ]],
+			 [ "clear", 
+			   [ ["auth", []],
+			  	 ["history",[]] ]],
+			 [ "toolbar", []] ];			
 }
    
 // getSubTree:
