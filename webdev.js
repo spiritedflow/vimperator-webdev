@@ -258,17 +258,30 @@ function keys(obj) {
 // Only node names will be in result tree
 function expandCommandTree () {
 	
- 	// For a while the algoritm is not 
-	// so hard to understand ;)
+	//spider: simple depth-first search.
+	//with omiting hidden elements.
+	function spider (node) {
+		
+		// Skip not leafes
+		if (node instanceof Array)
+			return [];
 	
-	return [ 
-			 [ "disable",
-			   [ ["javascript", []],
-			     ["java", []] ]],
-			 [ "clear", 
-			   [ ["auth", []],
-			  	 ["history",[]] ]],
-			 [ "toolbar", []] ];			
+		// Construct array for this node
+		var res = [];
+		for each(var k in keys(node).sort()) {
+
+			if (k == '_descr_')
+				continue;
+			
+			if (k[0] == '.' && !show_hidden)
+				continue;
+			
+			res.push ([k, spider(node[k])]);
+		}
+		return res;
+	}
+
+	return spider(commandTree);
 }
    
 // getSubTree:
