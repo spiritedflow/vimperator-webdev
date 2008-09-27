@@ -107,17 +107,14 @@ var commandTree = {
 		'_descr_': 'Do something with forms ...',
 		'convert': {
 			'_descr_': 'Convert forms method ...',
-			'post2get': [ function() {
-					webdeveloper_convertFormMethods('get');
-				}, 'Convert forms from POST to GET'],
-			'get2post': [ function() {
-					webdeveloper_convertFormMethods('post');
-				}, 'Convert forms from GET to POST'],
+			'post2get': [getMenuClicker("convert-form-methods-posts-gets"),
+				'Convert forms from POST to GET'],
+			'get2post': [getMenuClicker("convert-form-methods-gets-posts"),
+				'Convert forms from GET to POST'],
 		},
-		'details': [getToggleByStyle(webdeveloper_displayFormDetails,
-				"webdeveloper-display-form-details"),
+		'details': [getMenuClicker("display-form-details"),
 			"Show details for all forms"],
-		'info': [webdeveloper_viewFormInformation,
+		'info': [getMenuClicker("view-form-information"),
 			"Show information for all forms"],
 	},
 
@@ -138,14 +135,9 @@ var commandTree = {
 	// So disable -- toggle various things
 	'disable': {
 		'_descr_': 'Toggle various things ...',
-		'cache': [getToggleByPreference(webdeveloper_toggleCache,
-				"browser.cache.memory.enable"),
-			"Disable caching"],
-		'java' : [getToggleByPreference(webdeveloper_toggleJava,
-				"security.enable_java"),
-			"Disable Java"],
-		'javascript' : [getToggleByPreference(webdeveloper_toggleJavaScript,
-				"javascript.enabled"),
+		'cache': [getMenuClicker("disable-cache"), "Disable caching"],
+		'java' : [getMenuClicker("disable-java"), "Disable Java"],
+		'javascript' : [getMenuClicker("disable-all-javascript"),
 			"Disable JavaScript"],
 	},
 
@@ -197,58 +189,6 @@ function getMenuClicker (menuId) {
 
 		 elem.doCommand();
 	}
-}
-
-// toggle: common wrapper for all togglefunctions
-function toggle(toggleFunc, curValue) {
-	var element = document.createElement("input");
-	if (!curValue)
-		element.setAttribute("checked", true);
-	toggleFunc(element);
-	// TODO: Check can this code cause memory leaks?
-}
-
-// getToggle: translate toggleFunc to only-turn-on,
-// or only-turn-off functions
-function getToggle (toggleFunc, value) {
-	return function () {
-			toggle (toggleFunc, ! value);
-		}
-}
-
-// getToggleByStyle: wrapper for various outline*
-// and display* toggle functions.
-// styleId may by discovered with help of:
-//	 :webdev .debug loaded_styles
-function getToggleByStyle (toggleFunc, styleId) {
-	return function () {
-			var value = webdeveloper_contains (
-							webdeveloper_appliedStyles,
-							styleId );
-			toggle (toggleFunc, value);
-		}
-}
-
-// getToggleByPreference: wrapper for various disable*
-// functions. Preference can be found in the body of
-// toggleFunc
-function getToggleByPreference (toggleFunc, preference) {
-	return function () {
-			var value = !webdeveloper_getBooleanPreference(
-						preference,
-						false);
-			toggle (toggleFunc,  value);
-		};
-}
-
-// getPositionedToggle:
-function getPositionedToggle (position) {
-	return
-		getToggleByStyle (
-			function(element) {
-				webdeveloper_outlinePositionedElements(position, element)
-			},
-			"webdeveloper-outline-" + position + "-positioned-elements");
 }
 
 // wrapper to webdeveloper_resizeWindow
