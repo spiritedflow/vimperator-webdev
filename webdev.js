@@ -53,33 +53,51 @@ var commandTree = {
 	// Outlining frames, tables ... everything
 	'outline': {
 		'_descr_': 'Outline objects ...',
-		'frames': [getToggleByStyle(webdeveloper_outlineFrames,
-				"webdeveloper-outline-frames"),
-			"Outline frames"],
-		'headings': [getToggleByStyle(webdeveloper_outlineHeadings,
-				"webdeveloper-outline-headings"),
-			"Outline headings"],
-		'tables': [getToggleByStyle(webdeveloper_outlineTables,
-				"webdeveloper-outline-all-tables"),
-			"Outline tables"],
-		'blocklevel':[getToggleByStyle(webdeveloper_outlineBlockLevelElements,
-				"webdeveloper-outline-block-level-elements"),
+		'frames': [getMenuClicker("outline-frames"), "Outline frames"],
+		'headings': [getMenuClicker("outline-headings"), "Outline headings"],
+
+
+		'blocklevel':[getMenuClicker("outline-block-level-elements"),
 			"Outline block level elements"],
-		'depricated':[getToggleByStyle(webdeveloper_outlineDeprecatedElements,
-				"webdeveloper-outline-deprecated-elements"),
+		'depricated':[getMenuClicker("outline-depricated-elements"),
 			"Outline depricated elements"],
+
+		'current':[getMenuClicker("outline-current-element"),
+			"Outline current element"],
+		'custom':[getMenuClicker("outline-custom-elements"),
+			"Outline custom element"],
+
+		'tables': {
+			'_descr_': "Outline tables ...",
+			'_default_': [getMenuClicker("outline-all-tables"),
+				"Outline tables"],
+			'cells':[getMenuClicker("outline-table-cells"),
+				"Outline table cells"],
+			'captions':[getMenuClicker("outline-table-captions"),
+				"Outline table captions"],
+		},
+
+		// Outline links
+		'links': {
+			'_descr_': 'Outline links ...',
+			'external': [getMenuClicker("outline-external-links"),
+			"Outline external links"],
+			'ping': [getMenuClicker("outline-links-with-ping-attributes"),
+			"Outline links with ping attribute"],
+			'notitle': [getMenuClicker("outline-links-without-title-attributes"),
+			"Outline links without title attribute"],
+		},
 
 		// Outline positioned elements
 		'positioned': {
 			'_descr_': 'Outline positioned elements ...',
-			'absolute':[getPositionedToggle('absolute'),
+			'absolute':[getMenuClicker("outline-absolute-positioned-elements"),
 				"Outline absolute positioned elements"],
-			'fixed':[getPositionedToggle('fixed'),
+			'fixed':[getMenuClicker("outline-fixed-positioned-elements"),
 				"Outline fixed elements"],
-			'relative':[getPositionedToggle('relative'),
+			'relative':[getMenuClicker("outline-relative-positioned-elements"),
 				"Outline relative positioned elements"],
-			'float':[getToggleByStyle(webdeveloper_outlineFloatedElements,
-					"webdeveloper-outline-floated-elements"),
+			'float':[getMenuClicker("outline-floated-elements"),
 				"Outline floated elements"],
 		},
 	},
@@ -157,6 +175,29 @@ var quick_complete = false;
 /* *******************
  *  Helpful functions
  * *******************/
+
+// Main wrapper for WebDeveloper's menuitems.
+// Pass it's id in the webdeveloper.xul (smth like
+// webdeveloper-*-menu) or it's shorter variant
+// (what was replaced with * in the example)
+function getMenuClicker (menuId) {
+	return function() {
+		elem = document.getElementById(menuId)
+			|| document.getElementById("webdeveloper-" + menuId + "-menu");
+
+		if (!elem) {
+			liberator.echoerr ("can not find menu item with id" + menuId);
+			return null;
+		}
+
+		// Change status of checkboxes
+		if (elem.getAttribute("type") == "checkbox")
+			elem.setAttribute("checked",
+				! webdeveloper_convertToBoolean(elem.getAttribute("checked")));
+
+		 elem.doCommand();
+	}
+}
 
 // toggle: common wrapper for all togglefunctions
 function toggle(toggleFunc, curValue) {
