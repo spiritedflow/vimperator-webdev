@@ -1,7 +1,3 @@
-* dynamic branches in command tree
-
 * There are two similar codepieces: in expandCommandTree::spider, 
   and in completeCommand (lower part). Mb they should be unified
   and moved to separate function
-  
-* Use :emenu
