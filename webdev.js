@@ -131,6 +131,11 @@ var commandTree = {
 			"Disable JavaScript"],
 	},
 
+	'resize': {
+		'_descr_': 'Resize main window ...',
+		'_expand_': expandResizeSubmenu,
+	},
+
 	// Hidden menu .debug
 	'.debug': {
 		'loaded_styles': [displayLoadedStyles, "Display loaded styles"],
@@ -202,6 +207,20 @@ function getPositionedToggle (position) {
 			"webdeveloper-outline-" + position + "-positioned-elements");
 }
 
+function getResizeWindowFunction (size) {
+	return function () {
+			liberator.log ("Resizing to " + size);
+		}
+}
+
+function expandResizeSubmenu () {
+
+	return { "800x600": [getResizeWindowFunction ("800x600"),
+						 "Resize main window to 800x600"],
+			 "640x480": [getResizeWindowFunction ("640x480"),
+						 "Resize main window to 640x480"]};
+}
+
 // displayLoadedStyles: helpful function for searching styleIds
 function displayLoadedStyles () {
 	liberator.echo(webdeveloper_appliedStyles.toString() || "none");
@@ -245,12 +264,48 @@ function displayCommandTree () {
 
 // keys:
 // like keys for hashes/dictonaries in
-// other languages
-function keys(obj) {
+// other languages, but with one difference:
+// If there is a key '_expand_' then result
+// hash will be autoexpanded with results of
+// the function the key points to.
+function getKeys(obj) {
 	var res = [];
-	for (var key in obj)
+	for (var key in obj) {
+
+		if (key == '_expand_') {
+			expanded = getKeys(obj['_expand_']());
+			res = res.concat(expanded); //TODO: may be we should remove doubles
+			continue;
+		}
 		res.push(key);
+	}
 	return res;
+}
+
+// getValue:
+// works as obj[key] but with respect to
+// key '_expand_' as it does func "getKeys(obj)"
+function getValue(obj, key) {
+	if (key in obj)
+		return obj[key];
+
+	if (obj['_expand_'])
+		return getValue(obj['_expand_'](), key);
+
+	return null;
+}
+
+// isIn:
+// works as 'key on obj' but with respect to
+// key '_expand_'.
+function isIn(obj, key) {
+	if (key in obj)
+		return true;
+
+	if (obj['_expand_'])
+		return isIn(obj['_expand_'](), key);
+
+	return false;
 }
 
 // expandCommandTree:
@@ -270,7 +325,7 @@ function expandCommandTree () {
 
 		// Construct array for this node
 		var res = [];
-		for each(var k in keys(node).sort()) {
+		for each(var k in getKeys(node).sort()) {
 
 			if (k == '_descr_')
 				continue;
@@ -278,7 +333,7 @@ function expandCommandTree () {
 			if (k[0] == '.' && !show_hidden)
 				continue;
 
-			res.push ([k, spider(node[k])]);
+			res.push ([k, spider(getValue(node,k))]);
 		}
 		return res;
 	}
@@ -309,10 +364,10 @@ function getSubTree (args) {
 	// in the keys of the node
 	function matchCommand(node, item) {
 		// If match exactly -> return it
-		if (item in node)
+		if (isIn(node,item))
 			return [item];
 
-		var like = findLike (item, keys(node));
+		var like = findLike (item, getKeys(node));
 		return (like.length == 0)? [null]:like;
 	}
 
@@ -345,7 +400,7 @@ function getSubTree (args) {
 			var cmd = like[0];
 			//liberator.log("cmd found for \"" + head + "\" : " + cmd);
 
-			var [rpath, rnode] = walkTree (node[cmd], path);
+			var [rpath, rnode] = walkTree (getValue(node,cmd), path);
 			if (rpath == null)
 				return [rpath, rnode];
 
@@ -382,7 +437,7 @@ function completeCommand (args) {
 
 		if (node instanceof Array)
 			return node[1];
-		else if ( "_descr_" in  node)
+		else if ( isIn(node,"_descr_"))
 			return node._descr_;
 		else
 			return "";
@@ -401,9 +456,9 @@ function completeCommand (args) {
 	var candidates = [];
 	var insert_parent = true;
 
-	for each(var k in keys(obj).sort()) {
+	for each(var k in getKeys(obj).sort()) {
 		if (k == '_default_') {
-			candidates.push ([prefix, getDescr(obj[k])]);
+			candidates.push ([prefix, getDescr(getValue(obj,k))]);
 			insert_parent = false;
 		}
 		else if (k == '_descr_')
@@ -411,7 +466,7 @@ function completeCommand (args) {
 		else if (k[0] == '.' && !show_hidden)
 			continue;
 		else
-			candidates.push ([prefix + k, getDescr(obj[k])]);
+			candidates.push ([prefix + k, getDescr(getValue(obj,k))]);
 	}
 
 	// Insert parent "..." if needed
@@ -433,7 +488,7 @@ function processCommand (args) {
 	}
 
 	if ( !(obj instanceof Array) ) {
-		if ("_default_" in obj)
+		if (isIn(obj,"_default_"))
 		obj = obj._default_
 		else {
 			liberator.echo ("incomplete command, use <Tab> for variants");
