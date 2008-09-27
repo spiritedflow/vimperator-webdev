@@ -15,11 +15,11 @@
  *
  * Usage:
  *  :webdev <command path>
- * 
+ *
  * Use 'Tab' for autocompletition and '?' to discover subcommands
  *
- * There is hidden subtree ":webdev .debug" with commands which 
- * may be helpful to you if you want to add some new commands or 
+ * There is hidden subtree ":webdev .debug" with commands which
+ * may be helpful to you if you want to add some new commands or
  * debug the plugin.
  *
  * Tested on:
@@ -31,96 +31,6 @@
 
 
 (function() {
-
-/* *******************
- *  Helpful functions 
- * *******************/
-
-// toggle: common wrapper for all togglefunctions 
-function toggle(toggleFunc, curValue) {
-	var element = document.createElement("input");
-	if (!curValue)
-		element.setAttribute("checked", true);
-	toggleFunc(element);
-	// TODO: Check can this code cause memory leaks?
-}
-
-// getToggle: translate toggleFunc to only-turn-on,
-// or only-turn-off functions
-function getToggle (toggleFunc, value) {
-	return function () {
-			toggle (toggleFunc, ! value);
-		}
-}
-
-// getToggleByStyle: wrapper for various outline* 
-// and display* toggle functions.
-// styleId may by discovered with help of:
-//	 :webdev .debug loaded_styles
-function getToggleByStyle (toggleFunc, styleId) {
-	return function () {
-			var value = webdeveloper_contains (
-							webdeveloper_appliedStyles,
-							styleId );
-			toggle (toggleFunc, value);
-		}
-}
-
-// getToggleByPreference: wrapper for various disable* 
-// functions. Preference can be found in the body of 
-// toggleFunc
-function getToggleByPreference (toggleFunc, preference) {
-	return function () {
-			var value = !webdeveloper_getBooleanPreference(
-						preference,
-						false);
-			toggle (toggleFunc,  value);
-		};
-}
-
-// getPositionedToggle: 
-function getPositionedToggle (position) {
-	return 
-		getToggleByStyle ( 
-			function(element) {
-				webdeveloper_outlinePositionedElements(position, element)
-			}, 
-			"webdeveloper-outline-" + position + "-positioned-elements");
-}
-   
-// displayLoadedStyles: helpful function for searching styleIds
-function displayLoadedStyles () {
-	liberator.echo(webdeveloper_appliedStyles.toString() || "none");
-	liberator.log(webdeveloper_appliedStyles);
-}
-
-// displayCommandTree: shows all command list 
-// as tabbed tree. This is quick way to get 
-// all commands at once
-function displayCommandTree () {
-
-	//buildTree: 
-	// recursive walk through expanded command tree
-	// see 'expandCommandTree' for details
-	// returns formated list of strings to output.
-	function formatTree (list, prefix) {
-		var res=[];
-		
-		for each(var node in list) {
-			res.push (prefix + node[0]);
-			if (node[1])
-				res = res.concat(formatTree (node[1], prefix + "\t"));
-		}		
-
-		return res;
-	}
-
-	var list = formatTree (expandCommandTree (), "\t");
-	var result = "webdev\n" + list.join("\n");
-	
-	liberator.echo (result);
-	//liberator.log ("Command tree:\n" + result);
-}
 
 /* ********************
  *   COMMAND   TREE
@@ -143,37 +53,37 @@ var commandTree = {
 	// Outlining frames, tables ... everything
 	'outline': {
 		'_descr_': 'Outline objects ...',
-		'frames': [getToggleByStyle(webdeveloper_outlineFrames, 
+		'frames': [getToggleByStyle(webdeveloper_outlineFrames,
 				"webdeveloper-outline-frames"),
 			"Outline frames"],
-		'headings': [getToggleByStyle(webdeveloper_outlineHeadings, 
+		'headings': [getToggleByStyle(webdeveloper_outlineHeadings,
 				"webdeveloper-outline-headings"),
 			"Outline headings"],
-		'tables': [getToggleByStyle(webdeveloper_outlineTables, 
+		'tables': [getToggleByStyle(webdeveloper_outlineTables,
 				"webdeveloper-outline-all-tables"),
 			"Outline tables"],
-		'blocklevel':[getToggleByStyle(webdeveloper_outlineBlockLevelElements, 
+		'blocklevel':[getToggleByStyle(webdeveloper_outlineBlockLevelElements,
 				"webdeveloper-outline-block-level-elements"),
 			"Outline block level elements"],
-		'depricated':[getToggleByStyle(webdeveloper_outlineDeprecatedElements, 
+		'depricated':[getToggleByStyle(webdeveloper_outlineDeprecatedElements,
 				"webdeveloper-outline-deprecated-elements"),
 			"Outline depricated elements"],
-					
+
 		// Outline positioned elements
 		'positioned': {
 			'_descr_': 'Outline positioned elements ...',
-			'absolute':[getPositionedToggle('absolute'), 
+			'absolute':[getPositionedToggle('absolute'),
 				"Outline absolute positioned elements"],
-			'fixed':[getPositionedToggle('fixed'), 
+			'fixed':[getPositionedToggle('fixed'),
 				"Outline fixed elements"],
-			'relative':[getPositionedToggle('relative'), 
+			'relative':[getPositionedToggle('relative'),
 				"Outline relative positioned elements"],
-			'float':[getToggleByStyle(webdeveloper_outlineFloatedElements, 
+			'float':[getToggleByStyle(webdeveloper_outlineFloatedElements,
 					"webdeveloper-outline-floated-elements"),
 				"Outline floated elements"],
 		},
 	},
-	
+
 	// All about forms
 	'form': {
 		'_descr_': 'Do something with forms ...',
@@ -186,37 +96,37 @@ var commandTree = {
 					webdeveloper_convertFormMethods('post');
 				}, 'Convert forms from GET to POST'],
 		},
-		'details': [getToggleByStyle(webdeveloper_displayFormDetails, 
+		'details': [getToggleByStyle(webdeveloper_displayFormDetails,
 				"webdeveloper-display-form-details"),
 			"Show details for all forms"],
-		'info': [webdeveloper_viewFormInformation, 
+		'info': [webdeveloper_viewFormInformation,
 			"Show information for all forms"],
 	},
 
-/*	
+/*
 	// Show source, css and so on
 	'show': {
 		'_descr_': 'Show info or display tools ...',
 		'source':   [null, "Show source code"],
 		'css':	  [null, "Show CSS"],
 		'forms':	[null, "Show forms information"],
-		'size': 	[null, "Show window size"],		
+		'size': 	[null, "Show window size"],
 	},
-*/	
+*/
 
-	// cmd 'toggle' is more suitable for disable/enable commands, 
-	// but it begins with 't' as 'toolbar' does and it makes 
+	// cmd 'toggle' is more suitable for disable/enable commands,
+	// but it begins with 't' as 'toolbar' does and it makes
 	// autocompletition a bit more difficult :)
 	// So disable -- toggle various things
 	'disable': {
 		'_descr_': 'Toggle various things ...',
-		'cache': [getToggleByPreference(webdeveloper_toggleCache, 
+		'cache': [getToggleByPreference(webdeveloper_toggleCache,
 				"browser.cache.memory.enable"),
 			"Disable caching"],
-		'java' : [getToggleByPreference(webdeveloper_toggleJava, 
+		'java' : [getToggleByPreference(webdeveloper_toggleJava,
 				"security.enable_java"),
 			"Disable Java"],
-		'javascript' : [getToggleByPreference(webdeveloper_toggleJavaScript, 
+		'javascript' : [getToggleByPreference(webdeveloper_toggleJavaScript,
 				"javascript.enabled"),
 			"Disable JavaScript"],
 	},
@@ -226,7 +136,7 @@ var commandTree = {
 		'loaded_styles': [displayLoadedStyles, "Display loaded styles"],
 		'cmd_tree': [displayCommandTree, "Display command tree"],
 	},
-	
+
 };
 
 /* ********************
@@ -234,6 +144,98 @@ var commandTree = {
  * ********************/
 var show_hidden = false;
 var quick_complete = false;
+
+
+/* *******************
+ *  Helpful functions
+ * *******************/
+
+// toggle: common wrapper for all togglefunctions
+function toggle(toggleFunc, curValue) {
+	var element = document.createElement("input");
+	if (!curValue)
+		element.setAttribute("checked", true);
+	toggleFunc(element);
+	// TODO: Check can this code cause memory leaks?
+}
+
+// getToggle: translate toggleFunc to only-turn-on,
+// or only-turn-off functions
+function getToggle (toggleFunc, value) {
+	return function () {
+			toggle (toggleFunc, ! value);
+		}
+}
+
+// getToggleByStyle: wrapper for various outline*
+// and display* toggle functions.
+// styleId may by discovered with help of:
+//	 :webdev .debug loaded_styles
+function getToggleByStyle (toggleFunc, styleId) {
+	return function () {
+			var value = webdeveloper_contains (
+							webdeveloper_appliedStyles,
+							styleId );
+			toggle (toggleFunc, value);
+		}
+}
+
+// getToggleByPreference: wrapper for various disable*
+// functions. Preference can be found in the body of
+// toggleFunc
+function getToggleByPreference (toggleFunc, preference) {
+	return function () {
+			var value = !webdeveloper_getBooleanPreference(
+						preference,
+						false);
+			toggle (toggleFunc,  value);
+		};
+}
+
+// getPositionedToggle:
+function getPositionedToggle (position) {
+	return
+		getToggleByStyle (
+			function(element) {
+				webdeveloper_outlinePositionedElements(position, element)
+			},
+			"webdeveloper-outline-" + position + "-positioned-elements");
+}
+
+// displayLoadedStyles: helpful function for searching styleIds
+function displayLoadedStyles () {
+	liberator.echo(webdeveloper_appliedStyles.toString() || "none");
+	liberator.log(webdeveloper_appliedStyles);
+}
+
+// displayCommandTree: shows all command list
+// as tabbed tree. This is quick way to get
+// all commands at once
+function displayCommandTree () {
+
+	//buildTree:
+	// recursive walk through expanded command tree
+	// see 'expandCommandTree' for details
+	// returns formated list of strings to output.
+	function formatTree (list, prefix) {
+		var res=[];
+
+		for each(var node in list) {
+			res.push (prefix + node[0]);
+			if (node[1])
+				res = res.concat(formatTree (node[1], prefix + "\t"));
+		}
+
+		return res;
+	}
+
+	var list = formatTree (expandCommandTree (), "\t");
+	var result = "webdev\n" + list.join("\n");
+
+	liberator.echo (result);
+	//liberator.log ("Command tree:\n" + result);
+}
+
 
 
 
@@ -246,7 +248,7 @@ var quick_complete = false;
 // other languages
 function keys(obj) {
 	var res = [];
-	for (var key in obj) 
+	for (var key in obj)
 		res.push(key);
 	return res;
 }
@@ -257,25 +259,25 @@ function keys(obj) {
 //   SUBTREE ::= TREE
 // Only node names will be in result tree
 function expandCommandTree () {
-	
+
 	//spider: simple depth-first search.
 	//with omiting hidden elements.
 	function spider (node) {
-		
+
 		// Skip not leafes
 		if (node instanceof Array)
 			return [];
-	
+
 		// Construct array for this node
 		var res = [];
 		for each(var k in keys(node).sort()) {
 
 			if (k == '_descr_')
 				continue;
-			
+
 			if (k[0] == '.' && !show_hidden)
 				continue;
-			
+
 			res.push ([k, spider(node[k])]);
 		}
 		return res;
@@ -283,7 +285,7 @@ function expandCommandTree () {
 
 	return spider(commandTree);
 }
-   
+
 // getSubTree:
 // walks in the command tree along a path
 // and returns sanitized path and the node at the end
@@ -303,13 +305,13 @@ function getSubTree (args) {
 	}
 
 	// matchCommand:
-	// try to find item or similar items 
+	// try to find item or similar items
 	// in the keys of the node
 	function matchCommand(node, item) {
 		// If match exactly -> return it
 		if (item in node)
 			return [item];
-	
+
 		var like = findLike (item, keys(node));
 		return (like.length == 0)? [null]:like;
 	}
@@ -348,19 +350,19 @@ function getSubTree (args) {
 				return [rpath, rnode];
 
 			return [cmd + " " + rpath, rnode];
-		} 
+		}
 		else {
 			// We have variants ...
-		
+
 			//liberator.log("for \"" + head + "\" cmd not found,"
-			//	+ "but there are similar commands: " 
+			//	+ "but there are similar commands: "
 			//	+ like.toString());
 
 			//Make new node with only subnodes similar to cmd
 			var new_node = {}
 			for each(var k in like)
 				new_node[k] = node[k];
-			
+
 			return ["", new_node];
 		}
 	}
@@ -398,12 +400,12 @@ function completeCommand (args) {
 	// Otherwise, format candidates list
 	var candidates = [];
 	var insert_parent = true;
-	
+
 	for each(var k in keys(obj).sort()) {
 		if (k == '_default_') {
 			candidates.push ([prefix, getDescr(obj[k])]);
 			insert_parent = false;
-		} 
+		}
 		else if (k == '_descr_')
 			continue;
 		else if (k[0] == '.' && !show_hidden)
@@ -413,7 +415,7 @@ function completeCommand (args) {
 	}
 
 	// Insert parent "..." if needed
-	if (!quick_complete && insert_parent && candidates.length > 1) 
+	if (!quick_complete && insert_parent && candidates.length > 1)
 		candidates.unshift ([prefix, '...']);
 
 	return [0,candidates];
@@ -447,7 +449,7 @@ function processCommand (args) {
 }
 
 // Add user command
-liberator.commands.addUserCommand(['webdev'], 'webdeveloper', 
+liberator.commands.addUserCommand(['webdev'], 'webdeveloper',
 	processCommand,
 	{
 		completer: completeCommand,
