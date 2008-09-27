@@ -134,6 +134,9 @@ var commandTree = {
 	'resize': {
 		'_descr_': 'Resize main window ...',
 		'_expand_': expandResizeSubmenu,
+		'custom': [webdeveloper_customResizeWindow, "Custom resize window"],
+		'preferences': [function() {webdeveloper_options("resize");},
+				"Edit resize preferences"]
 	},
 
 	// Hidden menu .debug
@@ -207,18 +210,46 @@ function getPositionedToggle (position) {
 			"webdeveloper-outline-" + position + "-positioned-elements");
 }
 
-function getResizeWindowFunction (size) {
+// wrapper to webdeveloper_resizeWindow
+function getResizeWindowFunction (width, height, viewport) {
 	return function () {
-			liberator.log ("Resizing to " + size);
+			webdeveloper_resizeWindow(width, height, viewport);
 		}
 }
 
+
+// gets all settings about resizing windows and
+// returns subtree whith them.
+// see webdeveloper_updateResizeMenu for details
 function expandResizeSubmenu () {
 
-	return { "800x600": [getResizeWindowFunction ("800x600"),
-						 "Resize main window to 800x600"],
-			 "640x480": [getResizeWindowFunction ("640x480"),
-						 "Resize main window to 640x480"]};
+	// loads resize item from preferences
+	function getResizeItem (index) {
+		return {
+			descr: webdeveloper_getStringPreference(
+				"webdeveloper.resize." + index + ".description", true),
+			height: webdeveloper_getIntegerPreference(
+				"webdeveloper.resize." + index + ".height", true),
+			width: webdeveloper_getIntegerPreference(
+				"webdeveloper.resize." + index + ".width", true),
+			viewport: webdeveloper_getBooleanPreference(
+				"webdeveloper.resize." + index + ".viewport", true)
+		};
+	};
+
+	var submenu = {};
+
+	var count = webdeveloper_getIntegerPreference("webdeveloper.resize.count", true);
+	for(var i = 1; i <= count; i++) {
+		var item = getResizeItem(i);
+		if (item.descr == '')
+			continue;
+		submenu[item.descr] = [
+			getResizeWindowFunction(item.width, item.height, item.viewport),
+			"Resize window to " + item.width + "x" + item.height];
+	}
+
+	return submenu;
 }
 
 // displayLoadedStyles: helpful function for searching styleIds
