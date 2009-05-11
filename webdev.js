@@ -434,7 +434,7 @@ function getSubTree (args) {
 		}
 	}
 
-	var path = args.split(/\s+/);
+	var path = args.string.split(/\s+/);
 	return walkTree (commandTree, path);
 }
 
@@ -516,7 +516,7 @@ function processCommand (args) {
 }
 
 // Add user command
-liberator.commands.addUserCommand(['webdev'], 'webdeveloper',
+commands.addUserCommand(['webdev'], 'webdeveloper',
 	processCommand,
 	{
 		completer: completeCommand,
